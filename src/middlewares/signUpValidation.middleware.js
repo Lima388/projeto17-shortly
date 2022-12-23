@@ -9,19 +9,22 @@ export async function signUpValidation(req, res, next) {
     const errors = error.details.map((detail) => detail.message);
     return res.status(400).send(errors);
   }
+  try {
+    const userExists = await connection.query(
+      "SELECT COUNT(email) FROM users WHERE email = $1",
+      [user.email]
+    );
+    console.log(userExists.rows[0].count);
+    if (userExists.rows[0].count > 0) {
+      return res.status(409).send({ message: "Esse usuário já existe" });
+    }
 
-  const userExists = await connection.query(
-    "SELECT COUNT(email) FROM users WHERE email = $1",
-    [user.email]
-  );
-  console.log(userExists.rows[0].count);
-  if (userExists.rows[0].count > 0) {
-    return res.status(409).send({ message: "Esse usuário já existe" });
+    if (user.password != user.confirmPassword) {
+      return res.status(400).send({ message: "Confirmação de senha falhou" });
+    }
+
+    next();
+  } catch (err) {
+    return res.status(500).send(err);
   }
-
-  if (user.password != user.confirmPassword) {
-    return res.status(400).send({ message: "Confirmação de senha falhou" });
-  }
-
-  next();
 }
