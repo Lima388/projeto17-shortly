@@ -16,7 +16,7 @@ export async function findOrdered(req, res) {
       for (let i = 0; i < urlRows.length; i++) {
         visitTotal += urlRows[i].views;
       }
-      userRows.linksCount = urlRows.length;
+      userRows[i].linksCount = urlRows.length;
       userRows[i].visitCount = visitTotal;
     }
 
